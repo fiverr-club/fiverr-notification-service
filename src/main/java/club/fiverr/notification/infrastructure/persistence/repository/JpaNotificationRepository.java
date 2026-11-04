@@ -42,4 +42,12 @@ public class JpaNotificationRepository implements NotificationRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Notification> findAll() {
+        return jpaRepository.findAll()
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

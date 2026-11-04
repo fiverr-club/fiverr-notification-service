@@ -3,9 +3,11 @@ package club.fiverr.notification.presentation.rest;
 import club.fiverr.notification.application.dto.command.GetUserNotificationsCommand;
 import club.fiverr.notification.application.dto.command.MarkNotificationReadCommand;
 import club.fiverr.notification.application.dto.result.NotificationResult;
+import club.fiverr.notification.application.mapper.NotificationResultMapper;
 import club.fiverr.notification.application.port.in.GetUserNotificationsUseCase;
 import club.fiverr.notification.application.port.in.MarkNotificationReadUseCase;
 import club.fiverr.notification.application.port.in.SendNotificationUseCase;
+import club.fiverr.notification.domain.repository.NotificationRepository;
 import club.fiverr.notification.presentation.rest.mapper.NotificationRestMapper;
 import club.fiverr.notification.presentation.rest.request.SendNotificationRequest;
 import club.fiverr.notification.presentation.rest.response.NotificationResponse;
@@ -31,15 +33,28 @@ public class NotificationController {
     private final SendNotificationUseCase sendNotificationUseCase;
     private final GetUserNotificationsUseCase getUserNotificationsUseCase;
     private final MarkNotificationReadUseCase markNotificationReadUseCase;
+    private final NotificationRepository notificationRepository;
 
     public NotificationController(
             SendNotificationUseCase sendNotificationUseCase,
             GetUserNotificationsUseCase getUserNotificationsUseCase,
-            MarkNotificationReadUseCase markNotificationReadUseCase
+            MarkNotificationReadUseCase markNotificationReadUseCase,
+            NotificationRepository notificationRepository
     ) {
         this.sendNotificationUseCase = sendNotificationUseCase;
         this.getUserNotificationsUseCase = getUserNotificationsUseCase;
         this.markNotificationReadUseCase = markNotificationReadUseCase;
+        this.notificationRepository = notificationRepository;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
+        List<NotificationResponse> responses = notificationRepository.findAll()
+                .stream()
+                .map(NotificationResultMapper::toResult)
+                .map(NotificationRestMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @PostMapping
